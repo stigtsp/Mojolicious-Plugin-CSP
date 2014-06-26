@@ -1,0 +1,32 @@
+
+# $Id$
+
+severity = 1
+verbose  = 8
+
+#------------------------------------------------------------------------------
+
+[CodeLayout::RequireTidyCode]
+
+[Documentation::RequirePodSections]
+lib_sections    = NAME|AFFILIATION|VERSION|DESCRIPTION|CONFIGURATION AND ENVIRONMENT|DEPENDENCIES AND REQUIREMENTS|INCOMPATIBILITIES|BUGS AND LIMITATIONS|BUG REPORTING|TEST AND QUALITY|SEE ALSO|AUTHOR|LICENSE AND COPYRIGHT
+
+[Miscellanea::RequireRcsKeywords]
+keywords = Id
+
+[CodeLayout::ProhibitHardTabs]
+allow_leading_tabs = 0
+
+[-ValuesAndExpressions::ProhibitConstantPragma]
+
+[-NamingConventions::Capitalization]
+
+[-Documentation::RequirePodLinksIncludeText]
+
+[-Editor::RequireEmacsFileVariables]
+
+# I have left out the default TODO for now, I have created a patch for 
+# Perl::Critic::Bangs::ProhibitFlagComments to exempt examination of POD, 
+# see Github: https://github.com/petdance/perl-critic-bangs/pull/10
+[Bangs::ProhibitFlagComments]
+keywords = XXX FIXME HACK
