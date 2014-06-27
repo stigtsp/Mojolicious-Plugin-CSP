@@ -13,6 +13,8 @@ The initial version was developed at OWASP AppSecEU 2014 in Cambridge, UK.
 ## Resources
 
  * https://en.wikipedia.org/wiki/Content_Security_Policy
+ * http://www.w3.org/TR/CSP/
+ * http://www.html5rocks.com/en/tutorials/security/content-security-policy/
 
 ## Copyright
 
