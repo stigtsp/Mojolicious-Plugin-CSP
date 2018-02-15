@@ -4,20 +4,17 @@ use strict;
 use warnings;
 use Mojo::Base 'Mojolicious::Plugin';
 use Hash::Merge; #merge
+use Session::Token;
 
-our $VERSION = '0.01';
-
-my $keys = qw(default-src);
+our $VERSION = '0.01-s';
 
 sub register {
     my ( $self, $app, $conf ) = @_;
 
-    #report-uri /csp_report_parser;
-    #$csp = q[default-src 'none'];
     my $csp;
+    my $enable_nonce;
 
     if (not keys %{$conf}) {
-        #$conf->{'default-src'} = 'none';
         $conf = $self->_parse_csp("default-src 'none'");
     }
 
@@ -39,9 +36,13 @@ sub register {
     if ($config->{enable_builtin_csp_report_parser}) {
         my $r = $app->routes;
         $r->route('/csp_report_parser')->to(cb => \&_csp_report_parser);
-
-        delete $config->{enable_builtin_csp_report_parser};
     }
+
+    if ($config->{enable_nonce}) {
+        $enable_nonce=1;
+        delete $config->{enable_nonce};
+    }
+
 
     if ( $config ) {
         $csp = $self->_flatten_csp($config);
@@ -50,7 +51,15 @@ sub register {
     $app->hook(before_dispatch => sub {
         my ($c) = @_;
 
-        $c->res->headers->add('Content-Security-Policy' => $csp);
+        my $local_csp = $csp;
+
+        if ($enable_nonce) {
+            my $nonce = $c->stash->{csp_nonce} =  Session::Token->new->get();
+            my %cfg = %{ $config };
+            $cfg{"script-src"} .= " ".qq['nonce-$nonce'];            
+            $local_csp = $self->_flatten_csp(\%cfg);
+        }
+        $c->res->headers->add('Content-Security-Policy' => $local_csp);
 
         return 1;
     });
@@ -122,7 +131,7 @@ sub _flatten_csp {
     my ($self, $csp) = @_;
 
     my $csp_string;
-    foreach my $policy (keys %{$csp}) {
+    foreach my $policy (sort keys %{$csp}) {
         $csp_string .= "$policy ".$csp->{$policy}.q[;];
     }
 
